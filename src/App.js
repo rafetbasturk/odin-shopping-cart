@@ -1,24 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import { useGlobalContext } from "./context";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import SharedLayout from "./components/SharedLayout";
+import Home from "./components/Home";
+import SharedProductsLayout from "./components/SharedProductsLayout";
+import Products from "./components/Products";
+import SingleProduct from "./components/SingleProduct";
+import Cart from "./components/Cart";
+import Error from "./components/Error";
 
 function App() {
+  const { isLoading, items, addToCart, cart, setCart, handleSubmit } = useGlobalContext()
+  const count = cart.reduce((prev, curr) => prev + curr.count, 0)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SharedLayout count={count} />}>
+          <Route index element={<Home />} />
+          <Route path="products" element={<SharedProductsLayout />}>
+            <Route index element={<Products isLoading={isLoading} items={items} addToCart={addToCart}/>}/>
+            <Route path=":productId" element={<SingleProduct items={items} handleSubmit={handleSubmit} />} />
+          </Route>
+          <Route path="cart" element={<Cart cart={cart} setCart={setCart} />} />
+          <Route path="*" element={<Error />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
